@@ -52,10 +52,10 @@ class AppColumn extends StatelessWidget {
                         iconColor: AppColors.iconColor3
                         ),
 
-                        IconTextWidget(icon: Icons.sunny, 
-                        text: "Season", 
-                        iconColor: AppColors.iconColor3
-                        )
+                        //IconTextWidget(icon: Icons.sunny, 
+                        //text: "Season", 
+                        //iconColor: AppColors.iconColor3
+                        //)
                       ],
                      )
                   ],

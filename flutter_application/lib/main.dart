@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/home/main_page.dart';
+import 'package:flutter_application_1/pages/home/recommend_page.dart';
 import 'package:flutter_application_1/pages/location/popular_location_detail.dart';
 import 'package:flutter_application_1/pages/location/recommend_detail.dart';
 import 'package:get/get.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: RecommendDetail(),
+      home: RecommendPage(),
     );
   }
 }
