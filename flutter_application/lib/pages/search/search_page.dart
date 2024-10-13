@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_application_1/pages/home/login_page.dart';
+import 'package:flutter_application_1/pages/home/main_page.dart';
+import 'package:flutter_application_1/utils/colors.dart';
+ // เพิ่มการนำเข้าไฟล์ login_page.dart
 class SearchPage extends StatefulWidget {
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -7,6 +10,8 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   TextEditingController _searchController = TextEditingController();
+  
+  int _selectedIndex = 0; // เก็บค่าดัชนีของแถบที่ถูกเลือก
   
   // ลิสต์ข้อมูลสถานที่ที่มีชื่อและรูปแบบ Asset
   List<Map<String, String>> _places = [
@@ -27,15 +32,22 @@ class _SearchPageState extends State<SearchPage> {
     _filteredPlaces = _places;
   }
 
+  // ฟังก์ชันลบวรรณยุกต์และสระพิเศษออกจากข้อความ
+  String removeThaiTone(String input) {
+    return input.replaceAll(RegExp(r'[่-๋]'), ''); // ลบวรรณยุกต์ในภาษาไทย
+  }
+
   void _filterPlaces(String query) {
     List<Map<String, String>> _results = [];
-    if (query.isEmpty) {
+    String searchQuery = removeThaiTone(query.toLowerCase());
+
+    if (searchQuery.isEmpty) {
       _results = _places;
     } else {
-      _results = _places
-          .where((place) =>
-              place['name']!.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      _results = _places.where((place) {
+        String placeName = removeThaiTone(place['name']!.toLowerCase());
+        return placeName.contains(searchQuery);
+      }).toList();
     }
 
     setState(() {
@@ -43,12 +55,33 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+  // ฟังก์ชันสำหรับเปลี่ยนหน้าเมื่อเลือกแถบด้านล่าง
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // นำทางไปยังหน้า main_page.dart เมื่อกดปุ่ม "Home" (index = 0)
+    if (index == 0) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MainPage()),
+      );
+    }
+    // นำทางไปยังหน้า login_page.dart เมื่อกดปุ่ม "แก้ไข" (index = 2)
+    else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('ค้นหาสถานที่ท่องเที่ยว'),
-
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -88,30 +121,40 @@ class _SearchPageState extends State<SearchPage> {
                 itemCount: _filteredPlaces.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 3 / 2,
+                  childAspectRatio: 2 / 2.5,  // ปรับสัดส่วนความสูง
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
                 ),
                 itemBuilder: (context, index) {
                   return Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(20), // เพิ่มความโค้งมนให้กรอบรูป
                     ),
-                    child: GridTile(
-                      header: Container(
-                        padding: EdgeInsets.all(8),
-                        child: Text(
-                          _filteredPlaces[index]['name']!,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                    child: Column(
+                      children: [
+                        // รูปภาพที่โค้งมนขึ้น
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20), // เพิ่มความโค้งมนให้รูปภาพ
+                          child: Image.asset(
+                            _filteredPlaces[index]['image']!,
+                            fit: BoxFit.cover,
+                            height: 150, // กำหนดความสูงของรูปภาพ
+                            width: double.infinity,
                           ),
                         ),
-                      ),
-                      // ใช้ Image.asset เพื่อแสดงรูปภาพจาก Asset
-                      child: Image.asset(
-                        _filteredPlaces[index]['image']!,
-                        fit: BoxFit.cover,
-                      ),
+                        SizedBox(height: 8), // ระยะห่างระหว่างรูปภาพและตัวอักษร
+                        // ชื่อสถานที่อยู่ใต้รูปภาพ
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            _filteredPlaces[index]['name']!,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },
@@ -119,6 +162,25 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'หน้าหลัก',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_history),
+            label: 'ใกล้ฉัน',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.design_services),
+            label: 'แก้ไข',
+          ),
+        ],
+         currentIndex: _selectedIndex,
+        selectedItemColor: AppColors.mainColor,
+        onTap: _onItemTapped,
       ),
     );
   }

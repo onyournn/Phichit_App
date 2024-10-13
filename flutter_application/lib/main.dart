@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/controllers/popular_place_controller.dart';
+import 'package:flutter_application_1/pages/home/edit_page.dart';
 import 'package:flutter_application_1/pages/home/login_page.dart';
 import 'package:flutter_application_1/pages/home/main_page.dart';
 import 'package:flutter_application_1/pages/home/recommend_page.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: SearchPage(), // ตอนนี้ยังคง MainPage เป็นหน้าแรก
+      home: MainPage(), // ตอนนี้ยังคง MainPage เป็นหน้าแรก
     );
   }
 }

@@ -38,10 +38,10 @@ class _RecommendPageState extends State<RecommendPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( // เพิ่ม Scaffold เพื่อให้แน่ใจว่าเรามีโครงสร้างที่ถูกต้อง
-      body: SingleChildScrollView( // ห่อด้วย SingleChildScrollView เพื่อให้เลื่อนหน้าได้เมื่อเนื้อหายาวเกินไป
+    return Scaffold(
+      body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // จัดข้อความให้อยู่ทางซ้าย
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Slider section
             Container(
@@ -56,27 +56,26 @@ class _RecommendPageState extends State<RecommendPage> {
             ),
             // Dots Indicator
             Center(
-            child: DotsIndicator(
-              dotsCount: 5, 
-              position: _currPageValue,
-              decorator: DotsDecorator(
-                activeColor: AppColors.mainColor,
-                size: const Size.square(9.0),
-                activeSize: const Size(18.0, 9.0),
-                activeShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
+              child: DotsIndicator(
+                dotsCount: 5,
+                position: _currPageValue.toInt(),  // ใช้ค่า double โดยตรง
+                decorator: DotsDecorator(
+                  activeColor: AppColors.mainColor,
+                  size: const Size.square(9.0),
+                  activeSize: const Size(18.0, 9.0),
+                  activeShape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
                 ),
               ),
-            ),
             ),
             SizedBox(height: Dimensions.height15),
             // ListView.builder ห่อด้วย Container ที่กำหนดขนาด
             Container(
-              height: MediaQuery.of(context).size.height * 0.6, // ใช้ MediaQuery เพื่อให้ขนาดเหมาะสมกับหน้าจอ
+              height: MediaQuery.of(context).size.height * 0.6,
               child: ListView.builder(
                 itemCount: 10,
                 shrinkWrap: true,
-                //physics: NeverScrollableScrollPhysics(), // ปิดการ scroll ของ ListView เพราะใช้ SingleChildScrollView แล้ว
                 itemBuilder: (context, index) {
                   return Container(
                     margin: EdgeInsets.only(
@@ -98,7 +97,7 @@ class _RecommendPageState extends State<RecommendPage> {
                             ),
                           ),
                         ),
-                        Expanded( // ใช้ Expanded เพื่อลดปัญหา overflow
+                        Expanded(
                           child: Container(
                             height: Dimensions.ListViewTextContSize,
                             decoration: BoxDecoration(
@@ -138,11 +137,6 @@ class _RecommendPageState extends State<RecommendPage> {
                                         text: "Location",
                                         iconColor: AppColors.iconColor3,
                                       ),
-                                      //IconTextWidget(
-                                        //icon: Icons.sunny,
-                                        //text: "Season",
-                                        //iconColor: AppColors.iconColor3,
-                                      //),
                                     ],
                                   ),
                                 ],
@@ -229,7 +223,7 @@ class _RecommendPageState extends State<RecommendPage> {
                   left: Dimensions.height10,
                   right: Dimensions.height10,
                 ),
-                child: AppColumn(text: "บึงสีไฟ"), // เปลี่ยนจาก AppColumn เป็นข้อความตรงๆ
+                child: AppColumn(text: "บึงสีไฟ"),
               ),
             ),
           ),
