@@ -57,7 +57,7 @@ class _RecommendPageState extends State<RecommendPage> {
             // Dots Indicator
             Center(
             child: DotsIndicator(
-              dotsCount: 5,
+              dotsCount: 5, 
               position: _currPageValue,
               decorator: DotsDecorator(
                 activeColor: AppColors.mainColor,
@@ -94,7 +94,7 @@ class _RecommendPageState extends State<RecommendPage> {
                             color: Colors.white38,
                             image: DecorationImage(
                               fit: BoxFit.cover,
-                              image: AssetImage("assets/images/im00.jpg"),
+                              image: AssetImage("assets/images/buengsifai1.jpg"),
                             ),
                           ),
                         ),
@@ -197,7 +197,7 @@ class _RecommendPageState extends State<RecommendPage> {
               color: index.isEven ? Color(0xFF69c5df) : Color(0xFF9294cc),
               image: DecorationImage(
                 fit: BoxFit.cover,
-                image: AssetImage("assets/images/t4.jpg"),
+                image: AssetImage("assets/images/watkhao1.jpg"),
               ),
             ),
           ),

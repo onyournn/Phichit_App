@@ -1,9 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
+import 'package:flutter_application_1/pages/home/main_page.dart';
 import 'package:flutter_application_1/utils/colors.dart';
 import 'package:flutter_application_1/utils/dimensions.dart';
 import 'package:flutter_application_1/widgets/app_icon.dart';
 import 'package:flutter_application_1/widgets/big_text.dart';
 import 'package:flutter_application_1/widgets/exandable_text_widgets.dart';
+import 'package:flutter_application_1/widgets/icon_text_widget.dart';
+import 'package:flutter_application_1/widgets/small_text.dart';
 
 class RecommendDetail extends StatelessWidget {
   const RecommendDetail({Key? key}) : super(key: key);
@@ -18,23 +21,14 @@ class RecommendDetail extends StatelessWidget {
             toolbarHeight: 70,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                AppIcon(icon: Icons.clear),
-                //AppIcon(icon: Icons.)
-              ],
             ),
             bottom: PreferredSize(
               preferredSize: Size.fromHeight(20),
               child: Container(
-                //margin: EdgeInsets.only(left: Dimensions.width20, right: Dimensions.width20),
-                //color: Colors.white,
                 child: Center(
                     child: BigText(size: Dimensions.font26, text: "บึงสีไฟ")),
                 width: double.maxFinite,
-                padding: EdgeInsets.only(
-                  top: 5,
-                  bottom: 10,
-                ),
+                padding: EdgeInsets.only(top: 5, bottom: 10),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
@@ -47,95 +41,114 @@ class RecommendDetail extends StatelessWidget {
             expandedHeight: 300,
             flexibleSpace: FlexibleSpaceBar(
               background: Image.asset(
-                "assets/images/im00.jpg",
+                "assets/images/buengsifai1.jpg",
                 width: double.maxFinite,
                 fit: BoxFit.cover,
               ),
             ),
           ),
           SliverToBoxAdapter(
-              child: Column(
-            children: [
-              Container(
-                child: ExpandableTextWidget(
-                    text:
-                        "บึงสีไฟ เป็นแหล่งน้ำจืดขนาดใหญ่ของประเทศไทย ตั้งอยู่ในจังหวัดพิจิตรบึงสีไฟเป็นแหล่งเพาะพันธุ์สัตว์น้ำจืด แหล่งอาศัยของนกหลายชนิด และยังเป็นสถานที่พักผ่อนหย่อนใจที่สำคัญของจังหวัดพิจิตรด้วยบึงสีไฟมีจุดที่น่าสนใจบึงสีไฟ เป็นแหล่งน้ำจืดขนาดใหญ่ของประเทศไทย ตั้งอยู่ในจังหวัดพิจิตรบึงสีไฟเป็นแหล่งเพาะพันธุ์สัตว์น้ำจืด แหล่งอาศัยของนกหลายชนิด และยังเป็นสถานที่พักผ่อนหย่อนใจที่สำคัญของจังหวัดพิจิตรด้วยบึงสีไฟมีจุดที่น่าสนใจบึงสีไฟ เป็นแหล่งน้ำจืดขนาดใหญ่ของประเทศไทย ตั้งอยู่ในจังหวัดพิจิตรบึงสีไฟเป็นแหล่งเพาะพันธุ์สัตว์น้ำจืด แหล่งอาศัยของนกหลายชนิด และยังเป็นสถานที่พักผ่อนหย่อนใจที่สำคัญของจังหวัดพิจิตรด้วยบึงสีไฟมีจุดที่น่าสนใจบึงสีไฟ เป็นแหล่งน้ำจืดขนาดใหญ่ของประเทศไทย ตั้งอยู่ในจังหวัดพิจิตรบึงสีไฟเป็นแหล่งเพาะพันธุ์สัตว์น้ำจืด แหล่งอาศัยของนกหลายชนิด และยังเป็นสถานที่พักผ่อนหย่อนใจที่สำคัญของจังหวัดพิจิตรด้วยบึงสีไฟมีจุดที่น่าสนใจ"),
-                margin: EdgeInsets.only(
-                    left: Dimensions.width20, right: Dimensions.width20),
-              ),
-            ],
-          ))
-        ],
-      ),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Container(
-          //     padding: EdgeInsets.only(
-          //         left: Dimensions.width20 * 2.5,
-          //         right: Dimensions.width20 * 2.5,
-          //         top: Dimensions.height10,
-          //         bottom: Dimensions.height10),
-          //     child: Row(
-          //       mainAxisAlignment: MainAxisAlignment.center,
-          //       children: [
-          //         AppIcon(
-          //           iconSize: Dimensions.iconSize24,
-          //           iconColor: Colors.white,
-          //           backgroundColor: AppColors.mainColor,
-          //           icon: Icons.star_border,
-          //         ),
-          //       ],
-          //     )),
-          Container(
-            height: Dimensions.bottomHeightBar,
-            padding: EdgeInsets.only(
-                top: Dimensions.height30,
-                bottom: Dimensions.height30,
-                left: Dimensions.height20,
-                right: Dimensions.height20),
-            decoration: BoxDecoration(
-                color: AppColors.buttonBackgroundColor,
+            child: Container(
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(Dimensions.radius20 * 2),
-                    topRight: Radius.circular(Dimensions.radius20 * 2))),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              // Container(
-              // padding: EdgeInsets.only(top: Dimensions.height20, bottom: Dimensions.height20, left: Dimensions.width20, right: Dimensions.width20),
-              // decoration: BoxDecoration(
-              //  borderRadius: BorderRadius.circular(Dimensions.radius20),
-              // color: Colors.white
-              // ),
-              //), ปุ่มสีขาว
-              Container(
-                padding: EdgeInsets.only(
-                    top: Dimensions.height20,
-                    bottom: Dimensions.height20,
-                    left: Dimensions.width20,
-                    right: Dimensions.width20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radius20),
-                  color: AppColors.mainColor,
+                  topRight: Radius.circular(Dimensions.radius20),
+                  bottomRight: Radius.circular(Dimensions.radius20),
                 ),
-                child: Row(
+                color: Colors.white,
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: Dimensions.width10,
+                  right: Dimensions.width10,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.location_on, // ใช้ไอคอนที่คุณต้องการ
-                      color: Colors.white, // สีของไอคอน
-                    ),
-                    SizedBox(
-                        width: Dimensions
-                            .width10), // ช่องว่างระหว่างไอคอนและข้อความ
-                    BigText(
-                      text: "Route",
-                      color: Colors.white,
+                    SizedBox(height: Dimensions.height10),
+                    SmallText(text: "Type: Public park"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconTextWidget(
+                          icon: Icons.group,
+                          text: "Group",
+                          iconColor: AppColors.iconColor1,
+                        ),
+                        IconTextWidget(
+                          icon: Icons.location_on,
+                          text: "1.7 km",
+                          iconColor: AppColors.iconColor2,
+                        ),
+                        IconTextWidget(
+                          icon: Icons.location_city,
+                          text: "Location",
+                          iconColor: AppColors.iconColor3,
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ]),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                Container(
+                  child: ExpandableTextWidget(
+                    text: "บึงสีไฟ เป็นแหล่งน้ำจืดขนาดใหญ่ของประเทศไทย ตั้งอยู่ในจังหวัดพิจิตรบึงสีไฟเป็นแหล่งเพาะพันธุ์สัตว์น้ำจืด แหล่งอาศัยของนกหลายชนิด และยังเป็นสถานที่พักผ่อนหย่อนใจที่สำคัญของจังหวัดพิจิตรด้วย",
+                  ),
+                  margin: EdgeInsets.only(
+                    left: Dimensions.width20,
+                    right: Dimensions.width20,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.route),
+            label: 'Route',
+          ),
+        ],
+        selectedItemColor: AppColors.mainColor,
+        onTap: (index) {
+          if (index == 0) { // ปุ่ม Home
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MainPage()), // แทนที่ HomePage ด้วยหน้าจอที่คุณต้องการนำทางไป
+            );
+          } else if (index == 1) { // ปุ่ม Route
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RoutePage()),
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+// หน้าจอ RoutePage ที่จะไปเมื่อกดปุ่ม Route
+class RoutePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("เส้นทาง"),
+      ),
+      body: Center(
+        child: Text("This is the Route page!"),
       ),
     );
   }

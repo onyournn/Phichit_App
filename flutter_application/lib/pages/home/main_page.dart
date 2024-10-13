@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/home/recommend_page.dart';
+import 'package:flutter_application_1/pages/home/login_page.dart'; // Import ไฟล์ login_page.dart
 import 'package:flutter_application_1/utils/colors.dart';
 import 'package:flutter_application_1/utils/dimensions.dart';
 import 'package:flutter_application_1/widgets/big_text.dart';
-// ignore: unused_import
-import 'package:flutter_application_1/widgets/small_text.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -14,52 +13,77 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 2) {
+      // ถ้าเลือกแก้ไข ให้ไปที่ LoginPage
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    //print("current height is"+MediaQuery.of(context).size.height.toString());
     return Scaffold(
       body: Column(
         children: [
           Container(
-        child: Container(
-          margin: EdgeInsets.only(top:Dimensions.height45, bottom:Dimensions.height15),
-          padding: EdgeInsets.only(left:Dimensions.width20, right:Dimensions.width20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
+            margin: EdgeInsets.only(top: Dimensions.height45, bottom: Dimensions.height15),
+            padding: EdgeInsets.only(left: Dimensions.width20, right: Dimensions.width20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                BigText(text:"Phichit App", color: AppColors.mainColor),
-                Row(
-                  //children: [
-                    //SmallText(text: "District", color: Colors.black54),
-                    //Icon(Icons.arrow_drop_down_rounded)
-                  //],
-                )
+                Column(
+                  children: [
+                    BigText(text: "SpotPich", color: AppColors.mainColor),
+                  ],
+                ),
+                Container(
+                  width: Dimensions.height45,
+                  height: Dimensions.height45,
+                  child: Icon(
+                    Icons.search,
+                    color: Colors.white,
+                    size: Dimensions.iconSize24,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(Dimensions.radius15),
+                    color: const Color.fromRGBO(137, 218, 208, 1),
+                  ),
+                ),
               ],
             ),
-            
-            Center(
-              child: Container(
-                width: Dimensions.height45,
-                height: Dimensions.height45,
-                child: Icon(Icons.search, color: Colors.white, size:Dimensions.iconSize24),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radius15),
-                  color: const Color.fromARGB(255, 244, 209, 12),
-                ),
-                ),
-            ),
-            
-          ],
-        ),
+          ),
+          Expanded(
+            child: RecommendPage(),
+          ),
+        ],
       ),
-        ),
-        Expanded(child: SingleChildScrollView(
-          child: RecommendPage(),
-        )),
-       ],
-       
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'หน้าหลัก',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_history),
+            label: 'ใกล้ฉัน',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.design_services),
+            label: 'แก้ไข',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: AppColors.mainColor,
+        onTap: _onItemTapped,
       ),
     );
   }

@@ -26,7 +26,7 @@ class PopularLocationDetail extends StatelessWidget {
                 decoration: BoxDecoration(
                     image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: AssetImage("assets/images/im00.jpg"))),
+                        image: AssetImage("assets/images/buengsifai1.jpg"))),
               )),
           Positioned(
             top: Dimensions.height45,

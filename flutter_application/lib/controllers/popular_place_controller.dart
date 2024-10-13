@@ -11,7 +11,7 @@ class PopularPlaceController extends GetxController{
    Response response = await popularPlaceRepo.getPopularPlaceList();
    if(response.statusCode==200){
     _popularPlaceList=[];
-    //_popularPlaceList.addAll();
+    _popularPlaceList.addAll(response.body);
     update();
    }else{
     
