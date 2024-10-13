@@ -11,12 +11,12 @@ class _SearchPageState extends State<SearchPage> {
   // ลิสต์ข้อมูลสถานที่ที่มีชื่อและรูปแบบ Asset
   List<Map<String, String>> _places = [
     {'name': 'บึงสีไฟ', 'image': 'assets/images/buengsifai2.jpg'},
-    {'name': 'Lanvela', 'image': 'assets/images/lanvela1.jpg'},
-    {'name': 'Wangkrot', 'image': 'assets/images/wangkrot1.jpg'},
-    {'name': 'WatPo', 'image': 'assets/images/watpo1.jpg'},
-    {'name': 'Bamilinchak', 'image': 'assets/images/bamilinchak1.jpg'},
+    {'name': 'ลานเวลา', 'image': 'assets/images/lanvela1.jpg'},
+    {'name': 'ตลาดเก่าวังกรด', 'image': 'assets/images/wangkrot1.jpg'},
+    {'name': 'วัดโพธิ์ประทับช้าง', 'image': 'assets/images/watpo1.jpg'},
+    {'name': 'บะหมี่ลิ้นชัก', 'image': 'assets/images/bamilinchak1.jpg'},
     {'name': 'สะพานศิลป์', 'image': 'assets/images/sapansin.jpg'},
-    {'name': 'วัดเขารูปช้าง', 'image': 'assets/images/wathkao1.jpg'},
+    {'name': 'วัดเขารูปช้าง', 'image': 'assets/images/watkhao1.jpg'},
   ];
 
   List<Map<String, String>> _filteredPlaces = [];
@@ -48,14 +48,7 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('ค้นหาสถานที่ท่องเที่ยว'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.favorite_border),
-            onPressed: () {
-              // เพิ่มฟังก์ชันการใช้งานสำหรับรายการโปรด
-            },
-          ),
-        ],
+
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -133,7 +126,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget buildCategoryButton(IconData icon, String label) {
     return Column(
       children: [
-        Icon(icon, size: 40, color: Colors.green),
+        Icon(icon, size: 40, color: const Color.fromRGBO(137, 218, 208, 1)),
         SizedBox(height: 4),
         Text(label),
       ],
