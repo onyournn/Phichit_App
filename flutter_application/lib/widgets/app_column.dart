@@ -65,7 +65,7 @@ class AppColumn extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => RecommendDetail()), // เปลี่ยนเป็นหน้าอื่นตามต้องการ
+                        builder: (context) => RecommendDetail(locationId: '',)), // เปลี่ยนเป็นหน้าอื่นตามต้องการ
                   );
                 },
                 child: IconTextWidget(

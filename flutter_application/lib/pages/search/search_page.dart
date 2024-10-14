@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/home/login_page.dart';
 import 'package:flutter_application_1/pages/home/main_page.dart';
 import 'package:flutter_application_1/utils/colors.dart';
- // เพิ่มการนำเข้าไฟล์ login_page.dart
+
 class SearchPage extends StatefulWidget {
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -10,21 +9,51 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   TextEditingController _searchController = TextEditingController();
-  
+
   int _selectedIndex = 0; // เก็บค่าดัชนีของแถบที่ถูกเลือก
-  
+
   // ลิสต์ข้อมูลสถานที่ที่มีชื่อและรูปแบบ Asset
-  List<Map<String, String>> _places = [
-    {'name': 'บึงสีไฟ', 'image': 'assets/images/buengsifai2.jpg'},
-    {'name': 'ลานเวลา', 'image': 'assets/images/lanvela1.jpg'},
-    {'name': 'ตลาดเก่าวังกรด', 'image': 'assets/images/wangkrot1.jpg'},
-    {'name': 'วัดโพธิ์ประทับช้าง', 'image': 'assets/images/watpo1.jpg'},
-    {'name': 'บะหมี่ลิ้นชัก', 'image': 'assets/images/bamilinchak1.jpg'},
-    {'name': 'สะพานศิลป์', 'image': 'assets/images/sapansin.jpg'},
-    {'name': 'วัดเขารูปช้าง', 'image': 'assets/images/watkhao1.jpg'},
+  List<Map<String, dynamic>> _places = [
+    {
+      'name': 'บึงสีไฟ',
+      'image': 'assets/images/buengsifai2.jpg',
+      'categories': ['กลุ่ม', 'เด็ก', 'ฤดูร้อน', 'สถานที่ท่องเที่ยว']
+    },
+    {
+      'name': 'ลานเวลา',
+      'image': 'assets/images/lanvela1.jpg',
+      'categories': ['คนเดียว', 'ผู้ใหญ่', 'ฤดูหนาว', 'สถานที่ท่องเที่ยว']
+    },
+    {
+      'name': 'ตลาดเก่าวังกรด',
+      'image': 'assets/images/wangkrot1.jpg',
+      'categories': ['กลุ่ม', 'ผู้ใหญ่', 'ฤดูร้อน', 'สถานที่ท่องเที่ยว']
+    },
+    {
+      'name': 'วัดโพธิ์ประทับช้าง',
+      'image': 'assets/images/watpo1.jpg',
+      'categories': ['ผู้สูงอายุ', 'ฤดูฝน', 'สถานที่ท่องเที่ยว']
+    },
+    {
+      'name': 'บะหมี่ลิ้นชัก',
+      'image': 'assets/images/bamilinchak1.jpg',
+      'categories': ['กลุ่ม', 'ผู้ใหญ่', 'ร้านอาหาร']
+    },
+    {
+      'name': 'สะพานศิลป์',
+      'image': 'assets/images/sapansin.jpg',
+      'categories': ['กลุ่ม', 'เด็ก', 'ฤดูร้อน', 'สถานที่ท่องเที่ยว']
+    },
+    {
+      'name': 'วัดเขารูปช้าง',
+      'image': 'assets/images/watkhao1.jpg',
+      'categories': ['ผู้สูงอายุ', 'ฤดูหนาว', 'สถานที่ท่องเที่ยว']
+    },
   ];
 
-  List<Map<String, String>> _filteredPlaces = [];
+  List<Map<String, dynamic>> _filteredPlaces = [];
+
+  String _selectedCategory = 'ทั้งหมด';
 
   @override
   void initState() {
@@ -38,20 +67,29 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _filterPlaces(String query) {
-    List<Map<String, String>> _results = [];
+    List<Map<String, dynamic>> _results = [];
     String searchQuery = removeThaiTone(query.toLowerCase());
 
-    if (searchQuery.isEmpty) {
-      _results = _places;
-    } else {
-      _results = _places.where((place) {
-        String placeName = removeThaiTone(place['name']!.toLowerCase());
-        return placeName.contains(searchQuery);
-      }).toList();
-    }
+    _results = _places.where((place) {
+      String placeName = removeThaiTone(place['name']!.toLowerCase());
+
+      // ตรวจสอบว่า categories ไม่เป็น null และ contains category ที่เลือก
+      bool matchesCategory = _selectedCategory == 'ทั้งหมด' ||
+          (place['categories'] != null && place['categories']!.contains(_selectedCategory));
+
+      return placeName.contains(searchQuery) && matchesCategory;
+    }).toList();
 
     setState(() {
       _filteredPlaces = _results;
+    });
+  }
+
+  // ฟังก์ชันสำหรับการเลือกประเภทตัวกรอง
+  void _filterByCategory(String category) {
+    setState(() {
+      _selectedCategory = category;
+      _filterPlaces(_searchController.text);
     });
   }
 
@@ -66,13 +104,6 @@ class _SearchPageState extends State<SearchPage> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MainPage()),
-      );
-    }
-    // นำทางไปยังหน้า login_page.dart เมื่อกดปุ่ม "แก้ไข" (index = 2)
-    else if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
       );
     }
   }
@@ -104,13 +135,25 @@ class _SearchPageState extends State<SearchPage> {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  buildCategoryButton(Icons.local_offer, 'ลดราคาพิเศษ'),
-                  buildCategoryButton(Icons.star, 'แนะนำ'),
-                  buildCategoryButton(Icons.place, 'ใกล้คุณ'),
-                ],
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    buildCategoryButton('ทั้งหมด'),
+                    buildCategoryButton('คนเดียว'),
+                    buildCategoryButton('กลุ่ม'),
+                    buildCategoryButton('ผู้สูงอายุ'),
+                    buildCategoryButton('ผู้ใหญ่'),
+                    buildCategoryButton('เด็ก'),
+                    buildCategoryButton('ฤดูฝน'),
+                    buildCategoryButton('ฤดูหนาว'),
+                    buildCategoryButton('ฤดูร้อน'),
+                    buildCategoryButton('ร้านอาหาร'),
+                    buildCategoryButton('ของฝาก'),
+                    buildCategoryButton('ที่พัก'),
+                    buildCategoryButton('สถานที่ท่องเที่ยว'),
+                  ],
+                ),
               ),
             ),
             Padding(
@@ -121,7 +164,7 @@ class _SearchPageState extends State<SearchPage> {
                 itemCount: _filteredPlaces.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 2 / 2.5,  // ปรับสัดส่วนความสูง
+                  childAspectRatio: 2 / 2.5, // ปรับสัดส่วนความสูง
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
                 ),
@@ -173,25 +216,26 @@ class _SearchPageState extends State<SearchPage> {
             icon: Icon(Icons.location_history),
             label: 'ใกล้ฉัน',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.design_services),
-            label: 'แก้ไข',
-          ),
         ],
-         currentIndex: _selectedIndex,
+        currentIndex: _selectedIndex,
         selectedItemColor: AppColors.mainColor,
         onTap: _onItemTapped,
       ),
     );
   }
 
-  Widget buildCategoryButton(IconData icon, String label) {
-    return Column(
-      children: [
-        Icon(icon, size: 40, color: const Color.fromRGBO(137, 218, 208, 1)),
-        SizedBox(height: 4),
-        Text(label),
-      ],
+  Widget buildCategoryButton(String label) {
+    return GestureDetector(
+      onTap: () => _filterByCategory(label),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Chip(
+          label: Text(label),
+          backgroundColor: _selectedCategory == label
+              ? const Color.fromARGB(255, 238, 216, 76)
+              : Colors.grey[300],
+        ),
+      ),
     );
   }
 }

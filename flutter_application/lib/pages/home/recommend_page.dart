@@ -8,7 +8,7 @@ import 'package:flutter_application_1/widgets/big_text.dart'; // ใช้ big_t
 import 'package:flutter_application_1/widgets/small_text.dart'; // ใช้ small_text widget จากโปรเจกต์ของคุณ
 
 class RecommendPage extends StatefulWidget {
-  const RecommendPage({super.key});
+  const RecommendPage({super.key, required Null Function() onImageTap});
 
   @override
   _RecommendPageState createState() => _RecommendPageState();

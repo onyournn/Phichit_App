@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_application_1/pages/home/edit_page.dart'; // Import ไฟล์ edit_page.dart
+import 'package:flutter_application_1/pages/home/manage_page.dart'; // Import ไฟล์ edit_page.dart
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -25,12 +25,10 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // ตรวจสอบว่าผู้ใช้เข้าสู่ระบบสำเร็จ
       if (_auth.currentUser != null) {
-        // เมื่อเข้าสู่ระบบสำเร็จ นำทางไปยังหน้าจอ EditPage
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const EditPage()),
+          MaterialPageRoute(builder: (context) => const ManagePage()),
         );
         _showSuccess('Login successful');
       }
@@ -67,30 +65,73 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
+      backgroundColor: const Color(0xFF89dad0),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // เพิ่มโลโก้หรือรูปภาพที่ด้านบน
+                const CircleAvatar(
+                  radius: 70,
+                  backgroundImage: AssetImage('assets/images/logo.png'), // เปลี่ยนเป็นโลโก้ของคุณ
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'สวัสดี',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 30, 44, 67),
+                  ),
+                ),
+              
+                const SizedBox(height: 40),
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'อีเมล',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'รหัสผ่าน',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: _login,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15), backgroundColor: const Color(0xFFffd28d),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ), // สีของปุ่ม
+                  ),
+                  child: const Text(
+                    'เข้าสู่ระบบ',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                
+              ],
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Login'),
-            ),
-          ],
+          ),
         ),
       ),
     );

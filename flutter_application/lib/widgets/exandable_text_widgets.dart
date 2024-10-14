@@ -5,7 +5,7 @@ import 'package:flutter_application_1/widgets/small_text.dart';
 
 class ExpandableTextWidget extends StatefulWidget {
   final String text;
-  const ExpandableTextWidget({Key? key, required this.text}) : super(key: key);
+  const ExpandableTextWidget({Key? key, required this.text, required Null Function(dynamic isExpanded) onExpandedChanged}) : super(key: key);
 
   @override
   State<ExpandableTextWidget> createState() => _ExpandableTextWidgetState();
