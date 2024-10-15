@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // สำหรับใช้ Firestore
+import 'package:flutter_application_1/pages/home/login_page.dart';
 import 'package:flutter_application_1/pages/location/recommend_detail.dart';
+import 'package:flutter_application_1/pages/search/search_page.dart';
 import 'package:flutter_application_1/utils/colors.dart';
 import 'package:flutter_application_1/utils/dimensions.dart';
 import 'package:flutter_application_1/widgets/big_text.dart';
@@ -39,9 +41,14 @@ class _MainPageState extends State<MainPage> {
                 ),
                 Row(
                   children: [
+                    // ปุ่มค้นหา
                     GestureDetector(
                       onTap: () {
-                        // นำทางไปยังหน้า search_page.dart เมื่อกดปุ่มค้นหา
+                        // นำทางไปยังหน้า SearchPage เมื่อกดปุ่มค้นหา
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SearchPage()),
+                        );
                       },
                       child: Container(
                         width: Dimensions.height45,
@@ -58,9 +65,14 @@ class _MainPageState extends State<MainPage> {
                       ),
                     ),
                     SizedBox(width: Dimensions.width10), // เพิ่มช่องว่างระหว่างปุ่ม
+                    // ปุ่มผู้ดูแลระบบ
                     GestureDetector(
                       onTap: () {
-                        // นำทางไปยังหน้า LoginPage
+                        // นำทางไปยังหน้า LoginPage เมื่อกดปุ่ม admin_panel_settings
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
                       },
                       child: Container(
                         width: Dimensions.height45,

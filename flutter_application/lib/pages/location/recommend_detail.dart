@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_application_1/pages/home/main_page.dart';
 import 'package:flutter_application_1/utils/colors.dart';
 import 'package:flutter_application_1/utils/dimensions.dart';
 import 'package:flutter_application_1/widgets/app_icon.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_application_1/widgets/big_text.dart';
 import 'package:flutter_application_1/widgets/exandable_text_widgets.dart';
 import 'package:flutter_application_1/widgets/icon_text_widget.dart';
 import 'package:flutter_application_1/widgets/small_text.dart';  // นำเข้า SmallText
+// นำเข้า MainPage
 
 class RecommendDetail extends StatefulWidget {
   final String locationId; // รับ locationId เป็นตัวแปรใน RecommendDetail
@@ -20,6 +22,7 @@ class RecommendDetail extends StatefulWidget {
 class _RecommendDetailState extends State<RecommendDetail> {
   final TextEditingController _commentController = TextEditingController();
   int _selectedRating = 0;
+  int _selectedIndex = 0; // เพิ่มตัวแปรสำหรับ BottomNavigationBar
 
   void _setRating(int rating) {
     setState(() {
@@ -64,6 +67,24 @@ class _RecommendDetailState extends State<RecommendDetail> {
     }
   }
 
+  // ฟังก์ชันจัดการเมื่อมีการเลือกปุ่มใน BottomNavigationBar
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 0) {
+      // นำทางไปหน้าหลัก (MainPage) โดยใช้ Navigator.pushReplacement เพื่อแทนที่หน้าเดิม
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainPage()),
+      );
+    } else if (index == 1) {
+      // นำทางไปหน้าสถานที่ใกล้ฉัน (Near Me)
+      Navigator.pushNamed(context, '/near_me');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -100,6 +121,7 @@ class _RecommendDetailState extends State<RecommendDetail> {
           return CustomScrollView(
             slivers: [
               SliverAppBar(
+                automaticallyImplyLeading: false, // ลบปุ่มย้อนกลับ
                 toolbarHeight: 70,
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -130,7 +152,9 @@ class _RecommendDetailState extends State<RecommendDetail> {
                           width: double.maxFinite,
                           fit: BoxFit.cover,
                         )
-                      : Center(child: Icon(Icons.image, size: 100, color: Colors.grey)),
+                      : Center(
+                          child: Icon(Icons.image,
+                              size: 100, color: Colors.grey)),
                 ),
               ),
               SliverToBoxAdapter(
@@ -152,7 +176,9 @@ class _RecommendDetailState extends State<RecommendDetail> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(height: Dimensions.height10),
-                        SmallText(text: locationData['description'] ?? 'ไม่มีรายละเอียด'),
+                        SmallText(
+                            text:
+                                locationData['description'] ?? 'ไม่มีรายละเอียด'),
                         SizedBox(height: Dimensions.height20),
                         ExpandableTextWidget(
                           text: locationData['description'] ?? '',
@@ -172,10 +198,13 @@ class _RecommendDetailState extends State<RecommendDetail> {
                           children: List.generate(5, (index) {
                             return IconButton(
                               icon: Icon(
-                                index < _selectedRating ? Icons.star : Icons.star_border,
+                                index < _selectedRating
+                                    ? Icons.star
+                                    : Icons.star_border,
                                 color: Colors.amber,
                               ),
-                              onPressed: () => _setRating(index + 1), // ให้คะแนน
+                              onPressed: () =>
+                                  _setRating(index + 1), // ให้คะแนน
                             );
                           }),
                         ),
@@ -186,7 +215,8 @@ class _RecommendDetailState extends State<RecommendDetail> {
                           decoration: InputDecoration(
                             labelText: 'แสดงความคิดเห็น',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(Dimensions.radius15),
+                              borderRadius:
+                                  BorderRadius.circular(Dimensions.radius15),
                             ),
                           ),
                           maxLines: 3,
@@ -263,6 +293,22 @@ class _RecommendDetailState extends State<RecommendDetail> {
             ],
           );
         },
+      ),
+      // เพิ่ม BottomNavigationBar ไว้ภายนอก FutureBuilder
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'หน้าหลัก',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_on),
+            label: 'ใกล้ฉัน',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: AppColors.mainColor, // สีของไอคอนที่ถูกเลือก
+        onTap: _onItemTapped,
       ),
     );
   }

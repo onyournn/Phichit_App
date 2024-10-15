@@ -12,7 +12,6 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart'; // Import Firebase App Check
 import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage
-import 'helper/dependencies.dart' as dep;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,9 +24,6 @@ Future<void> main() async {
     androidProvider: AndroidProvider.debug,  // ใช้ Debug provider สำหรับ Android
     appleProvider: AppleProvider.debug,      // สำหรับ iOS (ถ้าจำเป็น)
   );
-
-  // เรียกใช้ dependency
-  await dep.init();
 
   // เริ่มต้นแอป
   runApp(const MyApp());
