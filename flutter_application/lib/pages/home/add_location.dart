@@ -3,9 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';  // สำหรับเลือกภาพ
 import 'dart:io';  // สำหรับจัดการไฟล์
-import 'package:flutter_application_1/utils/colors.dart';
-import 'package:flutter_application_1/utils/dimensions.dart';
-import 'package:flutter_application_1/widgets/big_text.dart';
 
 class AddLocation extends StatefulWidget {
   const AddLocation({super.key});
@@ -18,12 +15,15 @@ class _AddLocationState extends State<AddLocation> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _latitudeController = TextEditingController(); // สำหรับละติจูด
+  final TextEditingController _longitudeController = TextEditingController(); // สำหรับลองติจูด
+  final TextEditingController _mapUrlController = TextEditingController(); // สำหรับ URL แผนที่
 
   final CollectionReference locations = FirebaseFirestore.instance.collection('locations');
 
-  File? _selectedImage;  // เก็บภาพที่เลือก
-  final ImagePicker _picker = ImagePicker();  // สำหรับเลือกภาพ
-  bool _isLoading = false;  // สถานะการโหลด
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+  bool _isLoading = false;
 
   // ฟังก์ชันเลือกภาพจากแกลเลอรี
   Future<void> _pickImage() async {
@@ -38,79 +38,65 @@ class _AddLocationState extends State<AddLocation> {
   // ฟังก์ชันอัพโหลดรูปภาพไปที่ Firebase Storage
   Future<String?> _uploadImage(File image) async {
     try {
-      print("เริ่มการอัปโหลดรูปภาพ...");
-
-      // สร้าง reference สำหรับรูปภาพใน Firebase Storage
       Reference ref = FirebaseStorage.instance
           .ref()
           .child('location_images')
           .child('${DateTime.now().millisecondsSinceEpoch}.jpg');
 
-      print("สร้าง reference สำเร็จแล้ว");
-
-      // อัพโหลดไฟล์
       UploadTask uploadTask = ref.putFile(image);
       TaskSnapshot snapshot = await uploadTask;
-
-      print("อัปโหลดเสร็จสิ้นแล้ว");
-
-      // รับ URL ของรูปภาพที่อัพโหลดสำเร็จ
-      String downloadURL = await snapshot.ref.getDownloadURL();
-      print("ได้รับ URL ของรูปภาพ: $downloadURL");
-      return downloadURL;
+      return await snapshot.ref.getDownloadURL();
     } catch (e) {
-      print("เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ: $e");
       return null;
     }
   }
 
+  // ฟังก์ชันบันทึกข้อมูลใหม่
   void _saveNewLocation() async {
     String name = _nameController.text;
     String location = _locationController.text;
     String description = _descriptionController.text;
+    String latitude = _latitudeController.text;
+    String longitude = _longitudeController.text;
+    String mapUrl = _mapUrlController.text;
 
-    if (name.isNotEmpty && location.isNotEmpty && description.isNotEmpty && _selectedImage != null) {
+    if (name.isNotEmpty && location.isNotEmpty && description.isNotEmpty && latitude.isNotEmpty && longitude.isNotEmpty && mapUrl.isNotEmpty && _selectedImage != null) {
       setState(() {
-        _isLoading = true;  // เริ่มการโหลด
+        _isLoading = true;
       });
 
-      print("เริ่มอัปโหลดรูปภาพ...");
-
-      // อัพโหลดรูปภาพไปที่ Firebase Storage
       String? imageUrl = await _uploadImage(_selectedImage!);
 
       if (imageUrl != null) {
-        print("เริ่มบันทึกข้อมูลไปยัง Firestore...");
-        // บันทึกข้อมูลไปยัง Firestore
         await locations.add({
           'name': name,
-          'location': location,  // ใช้ 'location' แทน 'type'
+          'location': location,
           'description': description,
+          'latitude': latitude,
+          'longitude': longitude,
+          'map_url': mapUrl,
           'image_url': imageUrl,
           'timestamp': FieldValue.serverTimestamp(),
         }).then((value) {
           setState(() {
-            _isLoading = false;  // การบันทึกเสร็จสิ้น
+            _isLoading = false;
           });
-          print("บันทึกข้อมูลสำเร็จ");
-
-          // แสดงข้อความยืนยันว่าบันทึกข้อมูลสำเร็จ
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('บันทึกข้อมูลสำเร็จ')),
           );
-
-          // ล้างข้อมูลในฟิลด์ทั้งหมด
           _nameController.clear();
           _locationController.clear();
           _descriptionController.clear();
+          _latitudeController.clear();
+          _longitudeController.clear();
+          _mapUrlController.clear();
           setState(() {
-            _selectedImage = null;  // รีเซ็ตภาพที่เลือก
+            _selectedImage = null;
           });
         }).catchError((error) {
           setState(() {
-            _isLoading = false;  // หากเกิดข้อผิดพลาด
+            _isLoading = false;
           });
-          print("เกิดข้อผิดพลาดในการบันทึกข้อมูล: $error");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('ไม่สามารถบันทึกข้อมูลได้: $error')),
           );
@@ -134,55 +120,76 @@ class _AddLocationState extends State<AddLocation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: BigText(text: 'เพิ่มสถานที่ใหม่', size: Dimensions.font26),
-        backgroundColor: AppColors.mainColor,
+        title: Text('เพิ่มสถานที่ใหม่'),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())  // แสดง Loading ขณะอัพโหลดข้อมูล
+          ? Center(child: CircularProgressIndicator())
           : Padding(
-              padding: EdgeInsets.all(Dimensions.width20),
+              padding: EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: Dimensions.height20),
-
                     // ช่องกรอกชื่อสถานที่
                     TextField(
                       controller: _nameController,
                       decoration: InputDecoration(
                         labelText: 'ชื่อสถานที่',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(Dimensions.radius15),
-                        ),
+                        border: OutlineInputBorder(),
                       ),
                     ),
-                    SizedBox(height: Dimensions.height20),
+                    SizedBox(height: 16.0),
 
                     // ช่องกรอกที่ตั้ง
                     TextField(
                       controller: _locationController,
                       decoration: InputDecoration(
                         labelText: 'ที่ตั้ง',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(Dimensions.radius15),
-                        ),
+                        border: OutlineInputBorder(),
                       ),
                     ),
-                    SizedBox(height: Dimensions.height20),
+                    SizedBox(height: 16.0),
 
                     // ช่องกรอกรายละเอียด
                     TextField(
                       controller: _descriptionController,
                       decoration: InputDecoration(
                         labelText: 'รายละเอียด',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(Dimensions.radius15),
-                        ),
+                        border: OutlineInputBorder(),
                       ),
                       maxLines: 3,
                     ),
-                    SizedBox(height: Dimensions.height20),
+                    SizedBox(height: 16.0),
+
+                    // ช่องกรอกละติจูด
+                    TextField(
+                      controller: _latitudeController,
+                      decoration: InputDecoration(
+                        labelText: 'ละติจูด',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+
+                    // ช่องกรอกลองติจูด
+                    TextField(
+                      controller: _longitudeController,
+                      decoration: InputDecoration(
+                        labelText: 'ลองติจูด',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+
+                    // ช่องกรอก URL แผนที่
+                    TextField(
+                      controller: _mapUrlController,
+                      decoration: InputDecoration(
+                        labelText: 'URL แผนที่ Google Maps',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
 
                     // แสดงรูปภาพที่เลือก หรือปุ่มเลือกภาพ
                     Center(
@@ -202,22 +209,13 @@ class _AddLocationState extends State<AddLocation> {
                         ),
                       ),
                     ),
-                    SizedBox(height: Dimensions.height30),
+                    SizedBox(height: 24.0),
 
                     // ปุ่มบันทึกข้อมูลสถานที่ใหม่
                     Center(
                       child: ElevatedButton(
                         onPressed: _saveNewLocation,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.mainColor,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: Dimensions.width30,
-                              vertical: Dimensions.height15),
-                        ),
-                        child: Text(
-                          'บันทึกสถานที่',
-                          style: TextStyle(fontSize: Dimensions.font20),
-                        ),
+                        child: Text('บันทึกสถานที่'),
                       ),
                     ),
                   ],

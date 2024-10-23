@@ -1,11 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:dots_indicator/dots_indicator.dart'; // นำเข้า Dots Indicator
-import 'package:flutter_application_1/utils/colors.dart'; // ใช้ colors จากโปรเจกต์ของคุณ
-import 'package:flutter_application_1/utils/dimensions.dart'; // ใช้ dimensions จากโปรเจกต์ของคุณ
+import 'package:dots_indicator/dots_indicator.dart';
+import 'package:flutter_application_1/utils/colors.dart';
+import 'package:flutter_application_1/utils/dimensions.dart';
 import 'package:flutter_application_1/widgets/app_column.dart';
-import 'package:flutter_application_1/widgets/icon_text_widget.dart'; // ใช้ icon_text_widget จากโปรเจกต์ของคุณ
-import 'package:flutter_application_1/widgets/big_text.dart'; // ใช้ big_text widget จากโปรเจกต์ของคุณ
-import 'package:flutter_application_1/widgets/small_text.dart'; // ใช้ small_text widget จากโปรเจกต์ของคุณ
+import 'package:flutter_application_1/widgets/icon_text_widget.dart';
+import 'package:flutter_application_1/widgets/big_text.dart';
+import 'package:flutter_application_1/widgets/small_text.dart';
 
 class RecommendPage extends StatefulWidget {
   const RecommendPage({super.key, required Null Function() onImageTap});
@@ -20,9 +21,28 @@ class _RecommendPageState extends State<RecommendPage> {
   double _scaleFactor = 0.8;
   double _height = Dimensions.pageViewContainer;
 
+  // สร้างตัวแปรเก็บข้อมูลจาก Firestore
+  List<Map<String, dynamic>> _places = [];
+  bool _isLoading = true;  // สถานะการโหลดข้อมูล
+  String _errorMessage = '';  // เก็บข้อความแสดงข้อผิดพลาด
+
   @override
   void initState() {
     super.initState();
+
+    // เรียกข้อมูลจาก Firestore
+    FirebaseFirestore.instance.collection('places').get().then((querySnapshot) {
+      setState(() {
+        _places = querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        _isLoading = false;  // เสร็จสิ้นการโหลดข้อมูล
+      });
+    }).catchError((error) {
+      setState(() {
+        _errorMessage = 'เกิดข้อผิดพลาดในการดึงข้อมูล: $error';  // แสดงข้อผิดพลาด
+        _isLoading = false;
+      });
+    });
+
     pageController.addListener(() {
       setState(() {
         _currPageValue = pageController.page!;
@@ -39,124 +59,62 @@ class _RecommendPageState extends State<RecommendPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Slider section
-            Container(
-              height: Dimensions.pageView,
-              child: PageView.builder(
-                controller: pageController,
-                itemCount: 5,
-                itemBuilder: (context, position) {
-                  return _buildPageItem(position);
-                },
-              ),
-            ),
-            // Dots Indicator
-            Center(
-              child: DotsIndicator(
-                dotsCount: 5,
-                position: _currPageValue.toInt(),  // ใช้ค่า double โดยตรง
-                decorator: DotsDecorator(
-                  activeColor: AppColors.mainColor,
-                  size: const Size.square(9.0),
-                  activeSize: const Size(18.0, 9.0),
-                  activeShape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())  // แสดงการโหลด
+          : _errorMessage.isNotEmpty
+              ? Center(child: Text(_errorMessage))  // แสดงข้อความข้อผิดพลาด
+              : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Slider section
+                      Container(
+                        height: Dimensions.pageView,
+                        child: PageView.builder(
+                          controller: pageController,
+                          itemCount: _places.length, // ใช้จำนวนข้อมูลจาก Firestore
+                          itemBuilder: (context, position) {
+                            return _buildPageItem(position);
+                          },
+                        ),
+                      ),
+                      // Dots Indicator
+                      Center(
+                        child: _places.isNotEmpty
+                            ? DotsIndicator(
+                                dotsCount: _places.length,  // ตรวจสอบจำนวนข้อมูลที่ไม่เป็นศูนย์
+                                position: _currPageValue.toInt(),
+                                decorator: DotsDecorator(
+                                  activeColor: AppColors.mainColor,
+                                  size: const Size.square(9.0),
+                                  activeSize: const Size(18.0, 9.0),
+                                  activeShape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                ),
+                              )
+                            : SizedBox.shrink(),  // ซ่อน DotsIndicator เมื่อไม่มีข้อมูล
+                      ),
+                      SizedBox(height: Dimensions.height15),
+                      // ListView.builder ห่อด้วย Container ที่กำหนดขนาด
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: ListView.builder(
+                          itemCount: _places.length,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            return _buildListItem(index);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ),
-            SizedBox(height: Dimensions.height15),
-            // ListView.builder ห่อด้วย Container ที่กำหนดขนาด
-            Container(
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: ListView.builder(
-                itemCount: 10,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.only(
-                      left: Dimensions.height10,
-                      right: Dimensions.height10,
-                      bottom: Dimensions.height10,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: Dimensions.ListViewImgSize,
-                          height: Dimensions.ListViewImgSize,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(Dimensions.radius20),
-                            color: Colors.white38,
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: AssetImage("assets/images/buengsifai1.jpg"),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            height: Dimensions.ListViewTextContSize,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(Dimensions.radius20),
-                                bottomRight: Radius.circular(Dimensions.radius20),
-                              ),
-                              color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                left: Dimensions.width10,
-                                right: Dimensions.width10,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  BigText(text: "บึงสีไฟ"),
-                                  SizedBox(height: Dimensions.height10),
-                                  SmallText(text: "Type: Public park"),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      IconTextWidget(
-                                        icon: Icons.group,
-                                        text: "Group",
-                                        iconColor: AppColors.iconColor1,
-                                      ),
-                                      IconTextWidget(
-                                        icon: Icons.location_on,
-                                        text: "1.7 km",
-                                        iconColor: AppColors.iconColor2,
-                                      ),
-                                      IconTextWidget(
-                                        icon: Icons.location_city,
-                                        text: "Location",
-                                        iconColor: AppColors.iconColor3,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
   Widget _buildPageItem(int index) {
+    var place = _places[index];
     Matrix4 matrix = new Matrix4.identity();
     if (index == _currPageValue.floor()) {
       var currScale = 1 - (_currPageValue - index) * (1 - _scaleFactor);
@@ -191,7 +149,7 @@ class _RecommendPageState extends State<RecommendPage> {
               color: index.isEven ? Color(0xFF69c5df) : Color(0xFF9294cc),
               image: DecorationImage(
                 fit: BoxFit.cover,
-                image: AssetImage("assets/images/watkhao1.jpg"),
+                image: NetworkImage(place['image_url']), // ดึงรูปจาก Firestore
               ),
             ),
           ),
@@ -223,7 +181,81 @@ class _RecommendPageState extends State<RecommendPage> {
                   left: Dimensions.height10,
                   right: Dimensions.height10,
                 ),
-                child: AppColumn(text: "บึงสีไฟ"),
+                child: AppColumn(text: place['name']), // ใช้ชื่อจาก Firestore
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildListItem(int index) {
+    var place = _places[index];
+    return Container(
+      margin: EdgeInsets.only(
+        left: Dimensions.height10,
+        right: Dimensions.height10,
+        bottom: Dimensions.height10,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: Dimensions.ListViewImgSize,
+            height: Dimensions.ListViewImgSize,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(Dimensions.radius20),
+              color: Colors.white38,
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: NetworkImage(place['image_url']), // ดึงรูปจาก Firestore
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: Dimensions.ListViewTextContSize,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(Dimensions.radius20),
+                  bottomRight: Radius.circular(Dimensions.radius20),
+                ),
+                color: Colors.white,
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: Dimensions.width10,
+                  right: Dimensions.width10,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    BigText(text: place['name']),
+                    SizedBox(height: Dimensions.height10),
+                    SmallText(text: "Type: ${place['type']}"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconTextWidget(
+                          icon: Icons.group,
+                          text: place['group'],
+                          iconColor: AppColors.iconColor1,
+                        ),
+                        IconTextWidget(
+                          icon: Icons.location_on,
+                          text: "${place['distance']} km",
+                          iconColor: AppColors.iconColor2,
+                        ),
+                        IconTextWidget(
+                          icon: Icons.location_city,
+                          text: place['location'],
+                          iconColor: AppColors.iconColor3,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

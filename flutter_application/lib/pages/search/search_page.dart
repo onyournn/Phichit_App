@@ -20,7 +20,7 @@ class _SearchPageState extends State<SearchPage> {
       'categories': ['กลุ่ม', 'เด็ก', 'ฤดูร้อน', 'สถานที่ท่องเที่ยว']
     },
     {
-      'name': 'ลานเวลา',
+      'name': 'ลานเวฬา',
       'image': 'assets/images/lanvela1.jpg',
       'categories': ['คนเดียว', 'ผู้ใหญ่', 'ฤดูหนาว', 'สถานที่ท่องเที่ยว']
     },

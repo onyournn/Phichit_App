@@ -26,130 +26,150 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.only(top: Dimensions.height45, bottom: Dimensions.height15),
-            padding: EdgeInsets.only(left: Dimensions.width20, right: Dimensions.width20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      appBar: AppBar(
+        automaticallyImplyLeading: false, // ลบปุ่มย้อนกลับออก
+        backgroundColor: AppColors.mainColor,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            BigText(text: 'SpotPich', color: Colors.white),
+            Row(
               children: [
-                Column(
-                  children: [
-                    BigText(text: "SpotPich", color: AppColors.mainColor),
-                  ],
+                IconButton(
+                  icon: Icon(Icons.search, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SearchPage()),
+                    );
+                  },
                 ),
-                Row(
-                  children: [
-                    // ปุ่มค้นหา
-                    GestureDetector(
-                      onTap: () {
-                        // นำทางไปยังหน้า SearchPage เมื่อกดปุ่มค้นหา
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SearchPage()),
-                        );
-                      },
-                      child: Container(
-                        width: Dimensions.height45,
-                        height: Dimensions.height45,
-                        child: Icon(
-                          Icons.search,
-                          color: Colors.white,
-                          size: Dimensions.iconSize24,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Dimensions.radius15),
-                          color: const Color.fromRGBO(137, 218, 208, 1),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: Dimensions.width10), // เพิ่มช่องว่างระหว่างปุ่ม
-                    // ปุ่มผู้ดูแลระบบ
-                    GestureDetector(
-                      onTap: () {
-                        // นำทางไปยังหน้า LoginPage เมื่อกดปุ่ม admin_panel_settings
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
-                      },
-                      child: Container(
-                        width: Dimensions.height45,
-                        height: Dimensions.height45,
-                        child: Icon(
-                          Icons.admin_panel_settings,
-                          color: Colors.white,
-                          size: Dimensions.iconSize24,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Dimensions.radius15),
-                          color: const Color(0xFFffd28d), // สีของปุ่มผู้ดูแล (Admin)
-                        ),
-                      ),
-                    ),
-                  ],
+                IconButton(
+                  icon: Icon(Icons.admin_panel_settings, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
                 ),
               ],
             ),
+          ],
+        ),
+        elevation: 5, // เพิ่มเงา
+        shape: RoundedRectangleBorder( // เพิ่มการโค้งมนให้ AppBar
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
           ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 10),
+            // แสดงข้อมูลจาก Firestore
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance.collection('locations').snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('เกิดข้อผิดพลาดในการดึงข้อมูล'));
+                  } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(child: Text('ไม่มีข้อมูลสถานที่'));
+                  }
 
-          // แสดงข้อมูลจาก Firestore
-          Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('locations').snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  print("Error fetching locations: ${snapshot.error}");
-                  return Center(child: Text('เกิดข้อผิดพลาดในการดึงข้อมูล'));
-                } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('ไม่มีข้อมูลสถานที่'));
-                }
+                  final locations = snapshot.data!.docs;
 
-                final locations = snapshot.data!.docs;
+                  return ListView.builder(
+                    itemCount: locations.length,
+                    itemBuilder: (context, index) {
+                      var location = locations[index];
+                      var data = location.data() as Map<String, dynamic>?;
 
-                return ListView.builder(
-                  itemCount: locations.length,
-                  itemBuilder: (context, index) {
-                    var location = locations[index];
-                    var data = location.data() as Map<String, dynamic>?;
-
-                    if (data == null) {
-                      return ListTile(
-                        title: Text('ไม่มีข้อมูล'),
-                      );
-                    }
-
-                    return ListTile(
-                      leading: data.containsKey('image_url') && data['image_url'] != null
-                          ? Image.network(data['image_url'])
-                          : Icon(Icons.image),
-                      title: data.containsKey('name') && data['name'] != null
-                          ? Text(data['name'])
-                          : Text('ไม่มีชื่อสถานที่'),
-                      subtitle: data.containsKey('location') && data['location'] != null
-                          ? Text(data['location'])
-                          : Text('ไม่มีข้อมูลที่ตั้ง'),
-                      onTap: () {
-                        // Debug: แสดง locationId ในคอนโซล
-                        print('Location ID: ${location.id}');
-                        // ส่ง locationId ไปยัง RecommendDetail เมื่อกดที่รายการ
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RecommendDetail(locationId: location.id), // ส่ง locationId
-                          ),
+                      if (data == null) {
+                        return ListTile(
+                          title: Text('ไม่มีข้อมูล'),
                         );
-                      },
-                    );
-                  },
-                );
-              },
+                      }
+
+                      return Card(
+                        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                        elevation: 6, // เพิ่มระดับเงา
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: InkWell( // เพิ่ม InkWell เพื่อให้มีเอฟเฟกต์การกด
+                          borderRadius: BorderRadius.circular(15),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RecommendDetail(locationId: location.id),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: data.containsKey('image_url') && data['image_url'] != null
+                                      ? Image.network(
+                                          data['image_url'],
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Icon(Icons.image, size: 100, color: Colors.grey),
+                                ),
+                                SizedBox(width: 15),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        data['name'] ?? 'ไม่มีชื่อสถานที่',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Text(
+                                        data['location'] ?? 'ไม่มีข้อมูลที่ตั้ง',
+                                        style: TextStyle(color: Colors.grey[600]),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.location_on, size: 16, color: AppColors.mainColor),
+                                          SizedBox(width: 5),
+                                          Text('ระยะทาง: ${data['distance'] ?? 'N/A'} km'),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward_ios, color: AppColors.mainColor),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -164,7 +184,13 @@ class _MainPageState extends State<MainPage> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: AppColors.mainColor,
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
+        backgroundColor: Colors.white,
+        elevation: 10, // เพิ่มความสูงของเงา
+        type: BottomNavigationBarType.fixed,
+        selectedFontSize: 14,
+        unselectedFontSize: 12,
       ),
     );
   }

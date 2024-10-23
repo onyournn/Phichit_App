@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_application_1/pages/home/manage_page.dart'; // Import ไฟล์ edit_page.dart
+import 'package:flutter_application_1/pages/home/main_page.dart'; // Import ไฟล์ main_page.dart
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
       if (_auth.currentUser != null) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const ManagePage()),
+          MaterialPageRoute(builder: (context) => const MainPage()),
         );
         _showSuccess('Login successful');
       }
@@ -66,6 +66,19 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF89dad0),
+      appBar: AppBar(
+        title: const Text('Login'),
+        backgroundColor: const Color(0xFFffd28d),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainPage()), // เชื่อมไปยังหน้า MainPage
+            );
+          },
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -73,7 +86,6 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // เพิ่มโลโก้หรือรูปภาพที่ด้านบน
                 const CircleAvatar(
                   radius: 70,
                   backgroundImage: AssetImage('assets/images/logo.png'), // เปลี่ยนเป็นโลโก้ของคุณ
@@ -87,7 +99,6 @@ class _LoginPageState extends State<LoginPage> {
                     color: Color.fromARGB(255, 30, 44, 67),
                   ),
                 ),
-              
                 const SizedBox(height: 40),
                 TextField(
                   controller: _emailController,
@@ -118,17 +129,17 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15), backgroundColor: const Color(0xFFffd28d),
+                    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                    backgroundColor: const Color(0xFFffd28d),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0),
-                    ), // สีของปุ่ม
+                    ),
                   ),
                   child: const Text(
                     'เข้าสู่ระบบ',
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
-                
               ],
             ),
           ),

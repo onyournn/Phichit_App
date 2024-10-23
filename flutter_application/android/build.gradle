@@ -1,14 +1,16 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+//Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    ext.kotlin_version = '1.9.0' // อัปเดตเวอร์ชัน Kotlin เป็น 1.9.0
     repositories {
         google()
         mavenCentral()
         // ถ้ามีปัญหาการเชื่อมต่อกับแพ็กเกจอื่น ๆ สามารถเพิ่ม jcenter() ได้
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4' // ตรวจสอบให้แน่ใจว่าใช้เวอร์ชันที่รองรับ
-        classpath 'com.google.gms:google-services:4.3.15' // เพิ่ม Google Services Plugin สำหรับ Firebase
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // เพิ่ม Kotlin Gradle Plugin
+        classpath 'com.android.tools.build:gradle:8.1.1' // อัปเดต Gradle Plugin เป็นเวอร์ชันล่าสุดที่รองรับ Kotlin 1.9.0
+        classpath 'com.google.gms:google-services:4.3.15' // Google Services Plugin สำหรับ Firebase
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

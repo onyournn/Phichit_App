@@ -3,12 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_application_1/pages/home/main_page.dart';
 import 'package:flutter_application_1/utils/colors.dart';
 import 'package:flutter_application_1/utils/dimensions.dart';
-import 'package:flutter_application_1/widgets/app_icon.dart';
 import 'package:flutter_application_1/widgets/big_text.dart';
 import 'package:flutter_application_1/widgets/exandable_text_widgets.dart';
-import 'package:flutter_application_1/widgets/icon_text_widget.dart';
-import 'package:flutter_application_1/widgets/small_text.dart';  // นำเข้า SmallText
-// นำเข้า MainPage
+import 'package:flutter_application_1/widgets/small_text.dart'; // นำเข้า SmallText
+import 'package:url_launcher/url_launcher.dart'; // นำเข้า url_launcher สำหรับเปิด Google Maps
+import 'package:geolocator/geolocator.dart'; // นำเข้า geolocator สำหรับดึงพิกัดผู้ใช้
 
 class RecommendDetail extends StatefulWidget {
   final String locationId; // รับ locationId เป็นตัวแปรใน RecommendDetail
@@ -56,7 +55,6 @@ class _RecommendDetailState extends State<RecommendDetail> {
           SnackBar(content: Text('บันทึกรีวิวเรียบร้อย')),
         );
 
-        // ล้างข้อมูลในฟิลด์หลังจากบันทึกเรียบร้อยแล้ว
         _commentController.clear();
         _setRating(0); // รีเซ็ตจำนวนดาวหลังจากบันทึกรีวิว
       } catch (e) {
@@ -68,7 +66,7 @@ class _RecommendDetailState extends State<RecommendDetail> {
   }
 
   // ฟังก์ชันจัดการเมื่อมีการเลือกปุ่มใน BottomNavigationBar
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index, Map<String, dynamic> locationData) {
     setState(() {
       _selectedIndex = index;
     });
@@ -80,8 +78,44 @@ class _RecommendDetailState extends State<RecommendDetail> {
         MaterialPageRoute(builder: (context) => MainPage()),
       );
     } else if (index == 1) {
-      // นำทางไปหน้าสถานที่ใกล้ฉัน (Near Me)
-      Navigator.pushNamed(context, '/near_me');
+      // นำทางไป Google Maps โดยใช้พิกัดจาก Firestore และพิกัดผู้ใช้
+      if (locationData['latitude'] == null || locationData['longitude'] == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('พิกัดสถานที่ไม่ถูกต้อง')),
+        );
+        return;
+      }
+
+      String destLat = locationData['latitude'].toString();
+      String destLng = locationData['longitude'].toString();
+      _launchMapsWithUserLocation(destLat, destLng);
+    }
+  }
+
+  // ฟังก์ชันเปิด Google Maps โดยใช้พิกัดผู้ใช้และพิกัดสถานที่
+  void _launchMapsWithUserLocation(String destLat, String destLng) async {
+    // ตรวจสอบการอนุญาต
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // แจ้งให้ผู้ใช้เปิดการอนุญาตใน settings
+      throw 'Location permissions are permanently denied.';
+    }
+
+    // ดึงพิกัดปัจจุบันของผู้ใช้
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    String userLat = position.latitude.toString();
+    String userLng = position.longitude.toString();
+
+    // เปิด Google Maps พร้อมพิกัดผู้ใช้และสถานที่
+    final googleMapsUrl = Uri.parse(
+        'https://www.google.com/maps/dir/?api=1&origin=$userLat,$userLng&destination=$destLat,$destLng');
+    if (!await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication)) {
+      throw 'Could not open the map.';
     }
   }
 
@@ -180,10 +214,7 @@ class _RecommendDetailState extends State<RecommendDetail> {
                             text:
                                 locationData['description'] ?? 'ไม่มีรายละเอียด'),
                         SizedBox(height: Dimensions.height20),
-                        ExpandableTextWidget(
-                          text: locationData['description'] ?? '',
-                          onExpandedChanged: (isExpanded) {},
-                        ),
+                        
                         SizedBox(height: Dimensions.height20),
 
                         // ส่วนการเขียนรีวิวและให้คะแนน
@@ -295,20 +326,34 @@ class _RecommendDetailState extends State<RecommendDetail> {
         },
       ),
       // เพิ่ม BottomNavigationBar ไว้ภายนอก FutureBuilder
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'หน้าหลัก',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.location_on),
-            label: 'ใกล้ฉัน',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: AppColors.mainColor, // สีของไอคอนที่ถูกเลือก
-        onTap: _onItemTapped,
+      bottomNavigationBar: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('locations')
+            .doc(widget.locationId)
+            .get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            var locationData = snapshot.data!.data() as Map<String, dynamic>?;
+
+            return BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'หน้าหลัก',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.route),
+                  label: 'เส้นทาง',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: AppColors.mainColor, // สีของไอคอนที่ถูกเลือก
+              onTap: (index) => _onItemTapped(index, locationData!),
+            );
+          }
+        },
       ),
     );
   }
